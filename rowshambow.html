@@ -1,5 +1,16 @@
 <head>
   <title>Rock Paper Scissors</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    table, th, td {
+      border: 1px solid black;
+    }
+    th, td {
+      padding: 5px;
+    }
 </head>
 
 <body>
@@ -10,6 +21,25 @@
 <template name="rowshambow">
   <button id="rock">Rock</button>
   <button id="paper">Paper</button>
-  <button id="scissors">Scissors</button>
-  <button id="check">See winner</button>
+  <button id="scissors">Scissors</button><br />
+  <table style="border: 1px solid black;">
+    <tr>
+      <th>Round</th>
+      <th>Player 1</th>
+      <th>Player 2</th>
+      <th>Winner</th>
+    </tr>
+    {{#each rounds}}
+      {{> round}}
+    {{/each}}
+  </table>
+</template>
+
+<template name="round">
+  <tr>
+    <td>{{roundNo}}</td>
+    <td>{{player1}}</td>
+    <td>{{player2}}</td>
+    <td style="font-weight: bold;">{{winner}}</td>
+  </tr>
 </template>

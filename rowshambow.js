@@ -1,3 +1,5 @@
+Rounds = new Mongo.Collection("rounds");
+
 if (Meteor.isClient) {
 
   function getPlayer() {
@@ -5,51 +7,81 @@ if (Meteor.isClient) {
   };
 
   Template.rowshambow.events({
-    'click #rock': function () {
-      Meteor.call("setPlayerChoice", getPlayer(), "rock");
+    "click #rock": function () {
+      alert("You chose rock!");
+      Meteor.call("setPlayerChoice", getPlayer(), 0);
     },
-    'click #paper': function () {
-      Meteor.call("setPlayerChoice", getPlayer(), "paper");
+    "click #paper": function () {
+      alert("You chose paper!");
+      Meteor.call("setPlayerChoice", getPlayer(), 1);
     },
-    'click #scissors': function () {
-      Meteor.call("setPlayerChoice", getPlayer(), "scissors");
-    },
-    'click #check': function () {
-      Meteor.call("getWinner", getPlayer(), function(err, res) {
-        alert(res);
-      });
+    "click #scissors": function () {
+      alert("You chose scissors!");
+      Meteor.call("setPlayerChoice", getPlayer(), 2);
+    }
+  });
+  
+  Template.rowshambow.helpers({
+    rounds: function () {
+      return Rounds.find({});
     }
   });
 }
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
-    player1Choice = "none";
-    player2Choice = "none";
+    player1Value = -1;
+    player2Value = -1;
+    roundNo = 1;
   });
 }
 
 Meteor.methods({
   setPlayerChoice: function (player, choice) {
     if (player == "player1")
-      player1Choice = choice;
+      player1Value = choice;
     else if (player == "player2")
-      player2Choice = choice;
-  },
-  getWinner: function () {
-    if (player1Choice == "rock" && player2Choice == "paper")
-      return "player1: rock\nplayer2: paper\nwinner: player2";
-    else if (player1Choice == "rock" && player2Choice == "scissors")
-      return "player1: rock\nplayer2: scissors\nwinner: player1";
-    else if (player1Choice == "paper" && player2Choice == "rock")
-      return "player1: paper\nplayer2: rock\nwinner: player1";
-    else if (player1Choice == "paper" && player2Choice == "scissors")
-      return "player1: paper\nplayer2: scissors\nwinner: player2";
-    else if (player1Choice == "scissors" && player2Choice == "rock")
-      return "player1: scissors\nplayer2: rock\nwinner: player2";
-    else if (player1Choice == "scissors" && player2Choice == "paper")
-      return "player1: scissors\nplayer2: paper\nwinner: player1";
-    else
-      return "no winner";
+      player2Value = choice;
+    if (player1Value >= 0 && player2Value >= 0) {
+      winnerValue = (player1Value - player2Value + 3) % 3;
+      switch (player1Value) {
+        case 0:
+          player1 = "rock";
+          break;
+        case 1:
+          player1 = "paper";
+          break;
+        case 2:
+          player1 = "scissors";
+      }
+      switch (player2Value) {
+        case 0:
+          player2 = "rock";
+          break;
+        case 1:
+          player2 = "paper";
+          break;
+        case 2:
+          player2 = "scissors";
+      }
+      switch (winnerValue) {
+        case 0:
+          winner = "none";
+          break;
+        case 1:
+          winner = "Player 1";
+          break;
+        case 2:
+          winner = "Player 2";
+      }
+      Rounds.insert({
+        roundNo: roundNo++,
+        player1: player1,
+        player2: player2,
+        winner: winner
+      });
+      player1Value = -1;
+      player2Value = -2;
+    }
   }
 });
